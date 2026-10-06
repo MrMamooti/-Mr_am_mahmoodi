@@ -1,4 +1,4 @@
-/* Super JinX dashboard add-on
+/* Mamooti dashboard add-on
    1) Sidebar shows only: Dashboard, Users, API Keys, Templates, Bulk Actions, Settings, Support
       (+ Admins for the owner only, to create resellers).
    2) The "API Keys" page gets a small built-in section to get the 5-minute owner key
@@ -10,7 +10,6 @@
   "use strict";
   function norm(t) { return String(t || "").replace(/[\u200c\s]+/g, " ").trim().toLowerCase(); }
 
-  /* ---------- language: follows the panel (Persian, English, Russian, Chinese) ---------- */
   var L = {
     fa: { dir: "rtl",
       kTitle: "کلید ۵ دقیقه‌ای مالک", kDesc: "برای بازیابی ورود مالک: کلید بگیر، از پنل خارج شو و توی صفحه‌ی ورود «دسترسی مالک» رو بزن. برای تغییر عادی رمز از «تنظیمات» استفاده کن.",
@@ -57,13 +56,14 @@
       dNeedKey: "请输入所有者密钥", dBadU: "用户名：3 到 32 个英文字母、数字或 _ . -",
       err: "出错了，请重试", net: "无法连接服务器" }
   };
-  /* server answers (Persian text) are turned into the panel language by status code */
+
   var SRV = {
     fa: null,
     en: { 429: "Too many tries, wait 10 minutes", key401: "Wrong username or password", key403: "Only the panel owner can get a key", pw401: "Current username or password is wrong", pw409: "This username belongs to another account, pick another", rs401: "Wrong or expired key, get a new one", e500: "Not saved, try again in a few seconds" },
     ru: { 429: "Слишком много попыток, подождите 10 минут", key401: "Неверный логин или пароль", key403: "Ключ может получить только владелец", pw401: "Текущий логин или пароль неверен", pw409: "Этот логин занят, выберите другой", rs401: "Ключ неверный или истёк, получите новый", e500: "Не сохранено, попробуйте через несколько секунд" },
     zh: { 429: "尝试次数过多，请等待 10 分钟", key401: "用户名或密码错误", key403: "只有面板所有者可以获取密钥", pw401: "当前用户名或密码错误", pw409: "该用户名已被其他账户使用，请换一个", rs401: "密钥错误或已过期，请获取新密钥", e500: "未保存，请几秒后重试" }
   };
+
   function lang() {
     var c = "";
     try { c = localStorage.getItem("i18nextLng") || localStorage.getItem("lang") || localStorage.getItem("language") || ""; } catch (e) {}
@@ -74,7 +74,12 @@
     if (/^en/.test(c)) return "en";
     return document.documentElement.dir === "rtl" ? "fa" : "en";
   }
-  function T(k) { var l = L[lang()] || L.en; return l[k] != null ? l[k] : L.en[k]; }
+
+  function T(k) {
+    var l = L[lang()] || L.en;
+    return l[k] != null ? l[k] : L.en[k];
+  }
+
   function srvMsg(kind, status, j) {
     var m = SRV[lang()];
     if (!m) return (j && j.detail) || T("err");
@@ -82,25 +87,52 @@
     if (status >= 500) return m.e500;
     return m[kind + status] || T("err");
   }
-  function digits(n) { return lang() === "fa" ? String(n).replace(/[0-9]/g, function (d) { return "۰۱۲۳۴۵۶۷۸۹"[d]; }) : String(n); }
-  /* theme colors: works with the panel's light and dark theme, old (HSL numbers) and new (oklch / hex) color variables */
+
+  function digits(n) {
+    return lang() === "fa"
+      ? String(n).replace(/[0-9]/g, function (d) { return "۰۱۲۳۴۵۶۷۸۹"[d]; })
+      : String(n);
+  }
+
   var CFMT = null;
+
   function cv(name, fb) {
     if (CFMT === null) {
-      var v = ""; try { v = getComputedStyle(document.documentElement).getPropertyValue("--background").trim(); } catch (e) {}
-      CFMT = !v ? "none" : /^[\d.]+(deg)?\s+[\d.]+%\s+[\d.]+%/.test(v) ? "hsl" : "raw";
+      var v = "";
+      try {
+        v = getComputedStyle(document.documentElement).getPropertyValue("--background").trim();
+      } catch (e) {}
+      CFMT = !v
+        ? "none"
+        : /^[\d.]+(deg)?\s+[\d.]+%\s+[\d.]+%/.test(v)
+          ? "hsl"
+          : "raw";
     }
+
     if (CFMT === "hsl") return "hsl(var(--" + name + "," + fb + "))";
     if (CFMT === "raw") return "var(--" + name + ",hsl(" + fb + "))";
     return "hsl(" + fb + ")";
   }
-  function alpha(name, fb, pct) { return "color-mix(in srgb," + cv(name, fb) + " " + pct + "%,transparent)"; }
-  function themed(css) {   /* write the CSS with the right color syntax for this panel */
-    return css.replace(/\{\{([a-z-]+)\|([^}|]+)(?:\|(\d+))?\}\}/g, function (_, n, fb, p) { return p ? alpha(n, fb, p) : cv(n, fb); });
-  }
-  function addCss(id, css) { if (!document.getElementById(id)) { var st = document.createElement("style"); st.id = id; st.textContent = themed(css); document.head.appendChild(st); } }
 
-  /* ---------- 1) sidebar filter ---------- */
+  function alpha(name, fb, pct) {
+    return "color-mix(in srgb," + cv(name, fb) + " " + pct + "%,transparent)";
+  }
+
+  function themed(css) {
+    return css.replace(/\{\{([a-z-]+)\|([^}|]+)(?:\|(\d+))?\}\}/g, function (_, n, fb, p) {
+      return p ? alpha(n, fb, p) : cv(n, fb);
+    });
+  }
+
+  function addCss(id, css) {
+    if (!document.getElementById(id)) {
+      var st = document.createElement("style");
+      st.id = id;
+      st.textContent = themed(css);
+      document.head.appendChild(st);
+    }
+  }
+
   var HIDE = [
     "نودها", "نود", "Nodes", "Node",
     "هاست‌ها", "هاست ها", "هاستها", "میزبان‌ها", "Hosts", "Host Settings",
@@ -111,67 +143,124 @@
     "Ноды", "Узлы", "Хосты", "Ядра", "Ядро", "Настройки ядра", "Группы", "Роли", "Статистика",
     "节点", "主机", "核心", "核心设置", "群组", "分组", "角色", "统计"
   ].map(norm);
-  /* same pages by address, so the menu stays clean in every language */
+
   var HIDE_PATH = /^(\/dashboard)?\/(nodes?(\/.*)?|hosts?|cores?|core-settings|groups?|admin-roles?|roles?|statistics|stats)\/?$/i;
   var ADMIN_PATH = /^(\/dashboard)?\/admins?\/?$/i;
-  /* "Admins" is only for the owner (to create resellers); resellers never see it */
-  var ADMINS = ["مدیران", "ادمین‌ها", "ادمین ها", "Admins", "Admin", "Администраторы", "Админы", "管理员"].map(norm);
+
+  var ADMINS = [
+    "مدیران", "ادمین‌ها", "ادمین ها", "Admins", "Admin",
+    "Администраторы", "Админы", "管理员"
+  ].map(norm);
+
   var OWNER = null, askedFor = null, busy = false;
-  function whoAmI() {                      /* asks once per login token, never spams the API */
+
+  function whoAmI() {
     var t = findToken();
-    if (!t) { OWNER = null; askedFor = null; return; }
+    if (!t) {
+      OWNER = null;
+      askedFor = null;
+      return;
+    }
+
     if (t === askedFor || busy) return;
+
     busy = true;
-    fetch("/api/admin", { headers: { Authorization: "Bearer " + t } })
+
+    fetch("/api/admin", {
+      headers: { Authorization: "Bearer " + t }
+    })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (me) {
-        busy = false; askedFor = t;
-        OWNER = me ? !!(me.role && me.role.is_owner) : null;   /* expired token: unknown, not "reseller" */
+        busy = false;
+        askedFor = t;
+        OWNER = me ? !!(me.role && me.role.is_owner) : null;
         schedule();
       })
-      .catch(function () { busy = false; setTimeout(schedule, 30000); });
+      .catch(function () {
+        busy = false;
+        setTimeout(schedule, 30000);
+      });
   }
+
   function hidden(el) {
     var txt = norm(el.textContent), href = "";
-    try { var h = el.getAttribute("href"); if (h) { var U = new URL(h, location.href); href = /^#\//.test(U.hash) ? U.hash.slice(1) : U.pathname; } } catch (e) {}
+
+    try {
+      var h = el.getAttribute("href");
+      if (h) {
+        var U = new URL(h, location.href);
+        href = /^#\//.test(U.hash) ? U.hash.slice(1) : U.pathname;
+      }
+    } catch (e) {}
+
     if (HIDE.indexOf(txt) > -1 || (href && HIDE_PATH.test(href))) return true;
+
     return (ADMINS.indexOf(txt) > -1 || (href && ADMIN_PATH.test(href))) && OWNER !== true;
   }
+
   function sweep() {
     whoAmI();
-    var nodes = document.querySelectorAll('aside a, aside button, nav a, nav button, [data-sidebar="menu-button"], [data-sidebar="menu-sub-button"]');
+
+    var nodes = document.querySelectorAll(
+      'aside a, aside button, nav a, nav button, [data-sidebar="menu-button"], [data-sidebar="menu-sub-button"]'
+    );
+
     for (var i = 0; i < nodes.length; i++) {
-      if (nodes[i].closest("main") && !nodes[i].closest("aside, [data-sidebar]")) continue;   /* page content is never touched */
-      var item = nodes[i].closest('[data-sidebar="menu-sub-item"], [data-sidebar="menu-item"], li') || nodes[i];
+      if (nodes[i].closest("main") && !nodes[i].closest("aside, [data-sidebar]")) continue;
+
+      var item = nodes[i].closest(
+        '[data-sidebar="menu-sub-item"], [data-sidebar="menu-item"], li'
+      ) || nodes[i];
+
       var want = hidden(nodes[i]) ? "none" : "";
-      if (item.dataset.jx === "1" || want) { if (item.style.display !== want) item.style.display = want; item.dataset.jx = "1"; }
+
+      if (item.dataset.jx === "1" || want) {
+        if (item.style.display !== want) item.style.display = want;
+        item.dataset.jx = "1";
+      }
     }
   }
 
-  /* ---------- 2) owner key inside "API Keys" ---------- */
-  var TITLES = ["کلیدهای api", "کلید های api", "کلید api", "api keys", "api key", "api-ключи", "api ключи", "ключи api", "api 密钥", "api密钥"].map(norm);
+  var TITLES = [
+    "کلیدهای api", "کلید های api", "کلید api", "api keys", "api key",
+    "api-ключи", "api ключи", "ключи api", "api 密钥", "api密钥"
+  ].map(norm);
+
   function apiKeysHeading() {
     if (!/api[-_]?key/i.test(location.pathname + location.hash)) {
       var hs = document.querySelectorAll("main h1, main h2, h1, h2");
-      for (var i = 0; i < hs.length; i++) if (TITLES.indexOf(norm(hs[i].textContent)) > -1) return hs[i];
+
+      for (var i = 0; i < hs.length; i++) {
+        if (TITLES.indexOf(norm(hs[i].textContent)) > -1) return hs[i];
+      }
+
       return null;
     }
-    return document.querySelector("main h1, main h2, h1, h2") || document.querySelector("main") || null;
+
+    return document.querySelector("main h1, main h2, h1, h2") ||
+      document.querySelector("main") ||
+      null;
   }
+
   function findToken() {
     var jwt = /(eyJ[\w-]+\.[\w-]+\.[\w-]+)/, stores = [];
+
     try { stores.push(localStorage); } catch (e) {}
     try { stores.push(sessionStorage); } catch (e) {}
+
     for (var s = 0; s < stores.length; s++) {
       for (var i = 0; i < stores[s].length; i++) {
         var m = jwt.exec(String(stores[s].getItem(stores[s].key(i)) || ""));
         if (m) return m[1];
       }
     }
-    var c = jwt.exec(document.cookie || ""); return c ? c[1] : null;
+
+    var c = jwt.exec(document.cookie || "");
+    return c ? c[1] : null;
   }
-  /* same card look as the PasarGuard dashboard (uses its theme colors, light and dark) */
-  var KCSS = ".jx-k{margin:0 0 20px;border:1px solid {{border|240 5.9% 90%}};border-radius:calc(var(--radius,.5rem) + 4px);background:{{card|0 0% 100%}};color:{{card-foreground|240 10% 3.9%}};box-shadow:0 1px 2px rgba(0,0,0,.05);font:inherit}" +
+
+  var KCSS =
+    ".jx-k{margin:0 0 20px;border:1px solid {{border|240 5.9% 90%}};border-radius:calc(var(--radius,.5rem) + 4px);background:{{card|0 0% 100%}};color:{{card-foreground|240 10% 3.9%}};box-shadow:0 1px 2px rgba(0,0,0,.05);font:inherit}" +
     ".jx-k .h{padding:20px 20px 0;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap}.jx-k .t{flex:1 1 200px;min-width:0}" +
     ".jx-k .t b{display:block;font-size:16px;font-weight:600;line-height:1.4}.jx-k .t small{display:block;margin-top:4px;font-size:13px;line-height:1.7;color:{{muted-foreground|240 3.8% 46.1%}}}" +
     ".jx-k .p{padding:16px 20px 20px}" +
@@ -189,75 +278,211 @@
     ".jx-k input{width:100%;box-sizing:border-box;min-width:0;height:40px;padding:0 12px;border-radius:var(--radius,.5rem);border:1px solid {{input|240 5.9% 90%}};background:transparent;color:inherit;font:inherit;font-size:14px;direction:ltr;text-align:left;outline:none}" +
     ".jx-k input:focus{border-color:{{ring|240 5% 64.9%}};box-shadow:0 0 0 3px {{ring|240 5% 64.9%|25}}}" +
     ".jx-k .m{display:none;margin-top:10px;font-size:13px}.jx-k .m.bad{display:block;color:{{destructive|0 84.2% 60.2%}}}.jx-k .m.good{display:block;color:#16a34a}";
+
   var I_KEY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3M15 8l2 2"/></svg>';
-  var I_COPY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>';
+  var I_COPY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1 1h10a1 1 0 0 1 1 1v1"/></svg>';
   var I_RE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.35-5.65M20 4v5h-5"/></svg>';
+
   function mount() {
     var old = document.getElementById("jx-owner-key");
-    if (OWNER === false) { if (old) old.remove(); return; }   /* resellers don't see the owner key */
+
+    if (OWNER === false) {
+      if (old) old.remove();
+      return;
+    }
+
     if (old) return;
-    var h = apiKeysHeading(); if (!h) return;
+
+    var h = apiKeysHeading();
+    if (!h) return;
+
     addCss("jx-k-css", KCSS);
-    var box = document.createElement("section"); box.id = "jx-owner-key"; box.className = "jx-k"; box.dir = T("dir"); box.dataset.lang = lang();
-    box.innerHTML = '<div class="h"><div class="t"><b>' + T("kTitle") + '</b><small>' + T("kDesc") + '</small></div>' +
+
+    var box = document.createElement("section");
+    box.id = "jx-owner-key";
+    box.className = "jx-k";
+    box.dir = T("dir");
+    box.dataset.lang = lang();
+
+    box.innerHTML =
+      '<div class="h"><div class="t"><b>' + T("kTitle") + '</b><small>' + T("kDesc") + '</small></div>' +
       '<button type="button" class="btn pri g">' + I_KEY + '<span>' + T("kGet") + '</span></button></div>' +
       '<div class="p"><div class="key"><div class="row"><div class="val" title="' + T("kKey") + '"></div><button type="button" class="btn out c">' + I_COPY + '<span>' + T("kCopy") + '</span></button></div>' +
       '<div class="bar"><i></i></div><div class="meta"><span class="l"></span><span>' + T("kOne") + '</span></div></div>' +
       '<form class="f" onsubmit="return false"><label>' + T("kU") + '<input name="u" autocomplete="username" spellcheck="false" autocapitalize="off"></label>' +
       '<label>' + T("kP") + '<input name="p" type="password" autocomplete="current-password"></label><button type="button" class="btn pri ok">' + T("kOk") + '</button></form>' +
       '<div class="m"></div></div>';
+
     var anchor = h.closest("header") || h.parentElement || h;
-    if (anchor.parentNode) anchor.parentNode.insertBefore(box, anchor.nextSibling); else return;
-    var get = box.querySelector(".g"), getT = get.querySelector("span"), form = box.querySelector(".f"), okb = form.querySelector(".ok"),
-        keyBox = box.querySelector(".key"), val = box.querySelector(".val"), cp = box.querySelector(".c"), cpT = cp.querySelector("span"),
-        bar = box.querySelector(".bar i"), lab = box.querySelector(".l"), m = box.querySelector(".m"), timer, cur = "";
-    function say(cls, t) { m.className = "m " + cls; m.textContent = t; }
-    function busy(on) { get.disabled = okb.disabled = on; getT.textContent = on ? T("kMaking") : (cur ? T("kNew") : T("kGet")); }
+
+    if (anchor.parentNode) anchor.parentNode.insertBefore(box, anchor.nextSibling);
+    else return;
+
+    var get = box.querySelector(".g"),
+      getT = get.querySelector("span"),
+      form = box.querySelector(".f"),
+      okb = form.querySelector(".ok"),
+      keyBox = box.querySelector(".key"),
+      val = box.querySelector(".val"),
+      cp = box.querySelector(".c"),
+      cpT = cp.querySelector("span"),
+      bar = box.querySelector(".bar i"),
+      lab = box.querySelector(".l"),
+      m = box.querySelector(".m"),
+      timer,
+      cur = "";
+
+    function say(cls, t) {
+      m.className = "m " + cls;
+      m.textContent = t;
+    }
+
+    function busy(on) {
+      get.disabled = okb.disabled = on;
+      getT.textContent = on ? T("kMaking") : (cur ? T("kNew") : T("kGet"));
+    }
+
     function request(body, token) {
-      say("", ""); busy(true);
-      var hd = { "Content-Type": "application/json" }; if (token) hd.Authorization = "Bearer " + token;
-      fetch("/jinx/key", { method: "POST", headers: hd, body: JSON.stringify(body || {}), credentials: "same-origin" })
-        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return [r.status, j]; }); })
+      say("", "");
+      busy(true);
+
+      var hd = { "Content-Type": "application/json" };
+      if (token) hd.Authorization = "Bearer " + token;
+
+      fetch("/jinx/key", {
+        method: "POST",
+        headers: hd,
+        body: JSON.stringify(body || {}),
+        credentials: "same-origin"
+      })
+        .then(function (r) {
+          return r.json().catch(function () { return {}; }).then(function (j) {
+            return [r.status, j];
+          });
+        })
         .then(function (x) {
           busy(false);
+
           if (x[0] === 200 && x[1].key) return show(x[1]);
-          if (x[0] === 401 && !body) { form.classList.add("on"); form.u.focus(); return say("", ""); }
+
+          if (x[0] === 401 && !body) {
+            form.classList.add("on");
+            form.u.focus();
+            return say("", "");
+          }
+
           say("bad", srvMsg("key", x[0], x[1]));
         })
-        .catch(function () { busy(false); say("bad", T("net")); });
+        .catch(function () {
+          busy(false);
+          say("bad", T("net"));
+        });
     }
+
     function show(j) {
-      form.classList.remove("on"); form.reset(); cur = j.key; val.textContent = j.key; keyBox.classList.add("on");
-      get.innerHTML = I_RE + "<span>" + T("kNew") + "</span>"; getT = get.querySelector("span");
-      var ttl = (j.ttl || 300) * 1000, end = Date.now() + ttl;
+      form.classList.remove("on");
+      form.reset();
+      cur = j.key;
+      val.textContent = j.key;
+      keyBox.classList.add("on");
+
+      get.innerHTML = I_RE + "<span>" + T("kNew") + "</span>";
+      getT = get.querySelector("span");
+
+      var ttl = (j.ttl || 300) * 1000;
+      var end = Date.now() + ttl;
+
       clearInterval(timer);
+
       function upd() {
-        var left = Math.max(0, end - Date.now()), s = Math.round(left / 1000);
+        var left = Math.max(0, end - Date.now());
+        var s = Math.round(left / 1000);
+
         bar.style.width = (left / ttl * 100) + "%";
-        if (s) { lab.textContent = T("kValid") + digits(Math.floor(s / 60) + ":" + ("0" + s % 60).slice(-2)); val.style.opacity = ""; return; }
-        lab.textContent = T("kExp"); val.style.opacity = ".45"; cur = ""; clearInterval(timer);
+
+        if (s) {
+          lab.textContent = T("kValid") + digits(
+            Math.floor(s / 60) + ":" + ("0" + s % 60).slice(-2)
+          );
+          val.style.opacity = "";
+          return;
+        }
+
+        lab.textContent = T("kExp");
+        val.style.opacity = ".45";
+        cur = "";
+        clearInterval(timer);
       }
-      upd(); timer = setInterval(upd, 500);
+
+      upd();
+      timer = setInterval(upd, 500);
       say("good", T("kMade"));
     }
+
     function copyKey() {
       if (!cur) return say("bad", T("kExpCopy"));
-      function done() { cpT.textContent = T("kCopied"); setTimeout(function () { cpT.textContent = T("kCopy"); }, 1500); }
+
+      function done() {
+        cpT.textContent = T("kCopied");
+        setTimeout(function () {
+          cpT.textContent = T("kCopy");
+        }, 1500);
+      }
+
       try {
-        if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(cur).then(done, fallback);
+        if (navigator.clipboard && window.isSecureContext) {
+          return navigator.clipboard.writeText(cur).then(done, fallback);
+        }
       } catch (e) {}
+
       fallback();
-      function fallback() { var r = document.createRange(); r.selectNodeContents(val); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); try { document.execCommand("copy"); done(); } catch (e) { say("bad", T("kHand")); } }
+
+      function fallback() {
+        var r = document.createRange();
+        r.selectNodeContents(val);
+
+        var s = window.getSelection();
+        s.removeAllRanges();
+        s.addRange(r);
+
+        try {
+          document.execCommand("copy");
+          done();
+        } catch (e) {
+          say("bad", T("kHand"));
+        }
+      }
     }
-    get.onclick = function () { request(null, findToken()); };
-    okb.onclick = function () { var u = form.u.value.trim(), p = form.p.value; if (!u || !p) return say("bad", T("kNeed")); request({ username: u, password: p }); };
-    form.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); okb.click(); } });
+
+    get.onclick = function () {
+      request(null, findToken());
+    };
+
+    okb.onclick = function () {
+      var u = form.u.value.trim();
+      var p = form.p.value;
+
+      if (!u || !p) return say("bad", T("kNeed"));
+
+      request({
+        username: u,
+        password: p
+      });
+    };
+
+    form.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        okb.click();
+      }
+    });
+
     cp.onclick = copyKey;
   }
 
-  /* ---------- 3) Settings > change password (looks like the PasarGuard cards) ---------- */
-  var PCSS = ".jx-pw{margin:0 0 20px;border:1px solid {{border|240 5.9% 90%}};border-radius:calc(var(--radius,.5rem) + 4px);background:{{card|0 0% 100%}};color:{{card-foreground|240 10% 3.9%}};box-shadow:0 1px 2px rgba(0,0,0,.05);font:inherit}" +
-    ".jx-pw .h{padding:20px 20px 4px}.jx-pw .h b{display:block;font-size:16px;font-weight:600;line-height:1.4}.jx-pw .h small{display:block;margin-top:4px;font-size:13px;color:{{muted-foreground|240 3.8% 46.1%}}}" +
+  var PCSS =
+    ".jx-pw{margin:0 0 20px;border:1px solid {{border|240 5.9% 90%}};border-radius:calc(var(--radius,.5rem) + 4px);background:{{card|0 0% 100%}};color:{{card-foreground|240 10% 3.9%}};box-shadow:0 1px 2px rgba(0,0,0,.05);font:inherit}" +
+    ".jx-pw .h{padding:20px 20px 4px}.jx-pw .h b{display:block;font-size:16px;font-weight:600;line-height:1.4}.jx-pw .h small{display:block;margin-top:4px;font-size:13px;color:{{muted-foreground|240 3.8% 46.1%}}" +
     ".jx-pw .b{padding:16px 20px 20px;display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr))}" +
     ".jx-pw label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500;min-width:0}" +
     ".jx-pw input{width:100%;box-sizing:border-box;min-width:0;height:40px;padding:0 12px;border-radius:var(--radius,.5rem);border:1px solid {{input|240 5.9% 90%}};background:transparent;color:inherit;font:inherit;font-size:14px;direction:ltr;text-align:left;outline:none;transition:box-shadow .15s,border-color .15s}" +
@@ -265,27 +490,61 @@
     ".jx-pw .f{padding:0 20px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}" +
     ".jx-pw button{height:40px;padding:0 18px;border:0;border-radius:var(--radius,.5rem);cursor:pointer;font:inherit;font-size:14px;font-weight:500;background:{{primary|240 5.9% 10%}};color:{{primary-foreground|0 0% 98%}};transition:opacity .15s}" +
     ".jx-pw button:hover{opacity:.9}.jx-pw button:focus-visible{outline:none;box-shadow:0 0 0 2px {{background|0 0% 100%}},0 0 0 4px {{ring|240 5% 64.9%}}}.jx-pw button:disabled{opacity:.55;cursor:default}.jx-pw .m{font-size:13px}.jx-pw .m.bad{color:{{destructive|0 84.2% 60.2%}}}.jx-pw .m.good{color:#16a34a}";
+
   function settingsHeading() {
-    var words = ["تنظیمات", "settings", "تنظیمات عمومی", "general settings", "general", "настройки", "общие настройки", "设置", "常规设置"].map(norm);
+    var words = [
+      "تنظیمات", "settings", "تنظیمات عمومی", "general settings", "general",
+      "настройки", "общие настройки", "设置", "常规设置"
+    ].map(norm);
+
     var hs = document.querySelectorAll("main h1, main h2, h1, h2");
-    for (var i = 0; i < hs.length; i++) if (words.indexOf(norm(hs[i].textContent)) > -1) return hs[i];
-    if (/\/settings(\/|$|\?|#)/i.test(location.pathname + location.hash)) return document.querySelector("main h1, main h2, h1, h2");
+
+    for (var i = 0; i < hs.length; i++) {
+      if (words.indexOf(norm(hs[i].textContent)) > -1) return hs[i];
+    }
+
+    if (/\/settings(\/|$|\?|#)/i.test(location.pathname + location.hash)) {
+      return document.querySelector("main h1, main h2, h1, h2");
+    }
+
     return null;
   }
+
   function logout() {
     var jwt = /eyJ[\w-]+\.[\w-]+\.[\w-]+/, stores = [];
+
     try { stores.push(localStorage); } catch (e) {}
     try { stores.push(sessionStorage); } catch (e) {}
-    stores.forEach(function (st) { for (var i = st.length - 1; i >= 0; i--) { var k = st.key(i); if (jwt.test(String(st.getItem(k) || ""))) st.removeItem(k); } });
+
+    stores.forEach(function (st) {
+      for (var i = st.length - 1; i >= 0; i--) {
+        var k = st.key(i);
+        if (jwt.test(String(st.getItem(k) || ""))) st.removeItem(k);
+      }
+    });
+
     location.href = "/dashboard/";
   }
+
   function mountPass() {
     if (document.getElementById("jx-pass")) return;
-    var h = settingsHeading(); if (!h) return;
-    var anchor = h.closest("header") || h.parentElement || h; if (!anchor.parentNode) return;
+
+    var h = settingsHeading();
+    if (!h) return;
+
+    var anchor = h.closest("header") || h.parentElement || h;
+    if (!anchor.parentNode) return;
+
     addCss("jx-pw-css", PCSS);
-    var box = document.createElement("section"); box.id = "jx-pass"; box.className = "jx-pw"; box.dir = T("dir"); box.dataset.lang = lang();
-    box.innerHTML = '<div class="h"><b>' + T("pTitle") + '</b><small>' + T("pDesc") + '</small></div>' +
+
+    var box = document.createElement("section");
+    box.id = "jx-pass";
+    box.className = "jx-pw";
+    box.dir = T("dir");
+    box.dataset.lang = lang();
+
+    box.innerHTML =
+      '<div class="h"><b>' + T("pTitle") + '</b><small>' + T("pDesc") + '</small></div>' +
       '<form class="b" autocomplete="off" onsubmit="return false">' +
       '<label>' + T("pU") + '<input name="u" autocomplete="username" spellcheck="false" autocapitalize="off"></label>' +
       '<label>' + T("pC") + '<input name="c" type="password" autocomplete="current-password"></label>' +
@@ -293,34 +552,82 @@
       '<label>' + T("pN") + '<input name="n" type="password" autocomplete="new-password"></label>' +
       '<label>' + T("pR") + '<input name="r" type="password" autocomplete="new-password"></label></form>' +
       '<div class="f"><button type="button">' + T("pSave") + '</button><span class="m"></span></div>';
+
     anchor.parentNode.insertBefore(box, anchor.nextSibling);
-    var f = box.querySelector("form"), btn = box.querySelector("button"), m = box.querySelector(".m");
-    function say(cls, t) { m.className = "m " + cls; m.textContent = t; }
+
+    var f = box.querySelector("form"),
+      btn = box.querySelector("button"),
+      m = box.querySelector(".m");
+
+    function say(cls, t) {
+      m.className = "m " + cls;
+      m.textContent = t;
+    }
+
     function submit() {
-      var u = f.u.value.trim(), c = f.c.value, nu = f.nu.value.trim(), n = f.n.value, r = f.r.value;
+      var u = f.u.value.trim(),
+        c = f.c.value,
+        nu = f.nu.value.trim(),
+        n = f.n.value,
+        r = f.r.value;
+
       if (!u || !c) return say("bad", T("pNeedCur"));
       if (!n) return say("bad", T("pNeedNew"));
       if (n !== r) return say("bad", T("pMis"));
       if (nu && !/^[A-Za-z0-9_.-]{3,32}$/.test(nu)) return say("bad", T("pBadU"));
       if (new Blob([n]).size > 72) return say("bad", T("pLong"));
-      btn.disabled = true; say("", T("pSaving"));
-      fetch("/jinx/password", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "same-origin",
-        body: JSON.stringify({ username: u, current: c, new: n, new_username: nu }) })
-        .then(function (res) { return res.json().catch(function () { return {}; }).then(function (j) { return [res.status, j]; }); })
-        .then(function (x) {
-          if (x[0] === 200) { f.reset(); say("good", T("pDone").replace("{u}", (x[1] && x[1].username) || nu || u)); setTimeout(logout, 2500); return; }
-          btn.disabled = false; say("bad", srvMsg("pw", x[0], x[1]));
+
+      btn.disabled = true;
+      say("", T("pSaving"));
+
+      fetch("/jinx/password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({
+          username: u,
+          current: c,
+          new: n,
+          new_username: nu
         })
-        .catch(function () { btn.disabled = false; say("bad", T("net")); });
+      })
+        .then(function (res) {
+          return res.json().catch(function () { return {}; }).then(function (j) {
+            return [res.status, j];
+          });
+        })
+        .then(function (x) {
+          if (x[0] === 200) {
+            f.reset();
+            say(
+              "good",
+              T("pDone").replace("{u}", (x[1] && x[1].username) || nu || u)
+            );
+            setTimeout(logout, 2500);
+            return;
+          }
+
+          btn.disabled = false;
+          say("bad", srvMsg("pw", x[0], x[1]));
+        })
+        .catch(function () {
+          btn.disabled = false;
+          say("bad", T("net"));
+        });
     }
+
     btn.onclick = submit;
-    f.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); submit(); } });
+
+    f.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        submit();
+      }
+    });
   }
 
-
-  /* ---------- 4) Login page > "Owner access" (دسترسی مالک) -> native-looking dialog ----------
-     The panel's own "Owner access" button opens this dialog: owner key -> new owner username + password. */
-  var DCSS = ".jx-ov{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.8);opacity:0;transition:opacity .15s ease}" +
+  var DCSS =
+    ".jx-ov{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.8);opacity:0;transition:opacity .15s ease}" +
     ".jx-ov.on{opacity:1}.jx-dlg{position:relative;width:100%;max-width:440px;max-height:calc(100dvh - 32px);overflow:auto;padding:24px;border-radius:calc(var(--radius,.5rem) + 4px);border:1px solid {{border|240 5.9% 90%}};background:{{background|0 0% 100%}};color:{{foreground|240 10% 3.9%}};box-shadow:0 10px 38px rgba(0,0,0,.35),0 10px 20px rgba(0,0,0,.2);transform:scale(.96);transition:transform .15s ease;font:inherit;text-align:start}" +
     ".jx-ov.on .jx-dlg{transform:none}.jx-dlg h2{margin:0;font-size:18px;font-weight:600;line-height:1.4}.jx-dlg p.d{margin:6px 0 0;font-size:14px;line-height:1.7;color:{{muted-foreground|240 3.8% 46.1%}}}" +
     ".jx-dlg .x{position:absolute;top:14px;inset-inline-end:14px;width:28px;height:28px;display:grid;place-items:center;border:0;border-radius:6px;background:transparent;color:inherit;opacity:.7;cursor:pointer}.jx-dlg .x:hover{opacity:1;background:{{accent|240 4.8% 95.9%}}}.jx-dlg .x svg{width:16px;height:16px}" +
@@ -337,37 +644,77 @@
     ".jx-dlg .ok{display:none;text-align:center;padding:12px 0 4px}.jx-dlg .ok.on{display:block}.jx-dlg .ok i{display:grid;place-items:center;width:52px;height:52px;margin:0 auto 12px;border-radius:50%;background:rgba(22,163,74,.12);color:#16a34a}.jx-dlg .ok i svg{width:26px;height:26px}" +
     ".jx-dlg .ok b{display:block;font-size:16px;font-weight:600}.jx-dlg .ok small{display:block;margin-top:6px;font-size:14px;color:{{muted-foreground|240 3.8% 46.1%}}}.jx-dlg .spin{width:16px;height:16px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:jxsp .7s linear infinite}@keyframes jxsp{to{transform:rotate(360deg)}}" +
     ".jx-owner-fb{width:100%;margin-top:10px;height:40px;border-radius:var(--radius,.5rem);border:1px solid {{input|240 5.9% 90%}};background:transparent;color:inherit;font:inherit;font-size:14px;font-weight:500;cursor:pointer}.jx-owner-fb:hover{background:{{accent|240 4.8% 95.9%}}}";
+
   var I_X = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';
   var I_EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
   var I_OK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
-  var OWNER_TXT = ["دسترسی مالک", "ورود مالک", "owner access", "owner login", "access as owner", "доступ владельца", "вход владельца", "所有者访问", "所有者登录"].map(norm);
+
+  var OWNER_TXT = [
+    "دسترسی مالک", "ورود مالک", "owner access", "owner login", "access as owner",
+    "доступ владельца", "вход владельца", "所有者访问", "所有者登录"
+  ].map(norm);
+
   function loginForm() {
-    if (document.querySelector('[data-sidebar], aside')) return null;            /* inside the dashboard: not the login page */
-    var pw = document.querySelector('form input[type="password"]'); if (!pw) return null;
-    var f = pw.closest("form"); if (!f || f.closest(".jx-dlg")) return null;
+    if (document.querySelector('[data-sidebar], aside')) return null;
+
+    var pw = document.querySelector('form input[type="password"]');
+    if (!pw) return null;
+
+    var f = pw.closest("form");
+    if (!f || f.closest(".jx-dlg")) return null;
+
     return f;
   }
+
   function ownerButton() {
     var els = document.querySelectorAll('button, a, [role="button"]');
+
     for (var i = 0; i < els.length; i++) {
       if (els[i].closest(".jx-dlg") || els[i].classList.contains("jx-owner-fb")) continue;
+
       var t = norm(els[i].textContent);
-      if (t && OWNER_TXT.some(function (w) { return t === w || t.indexOf(w) > -1; })) return els[i];
+
+      if (
+        t &&
+        OWNER_TXT.some(function (w) {
+          return t === w || t.indexOf(w) > -1;
+        })
+      ) {
+        return els[i];
+      }
     }
+
     return null;
   }
-  function setNative(input, v) {             /* fill a React-controlled input so the panel sees the value */
+
+  function setNative(input, v) {
     if (!input) return;
-    var d = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
-    d && d.set ? d.set.call(input, v) : (input.value = v);
+
+    var d = Object.getOwnPropertyDescriptor(
+      HTMLInputElement.prototype,
+      "value"
+    );
+
+    d && d.set
+      ? d.set.call(input, v)
+      : (input.value = v);
+
     input.dispatchEvent(new Event("input", { bubbles: true }));
   }
+
   function openOwnerDialog() {
     if (document.querySelector(".jx-ov")) return;
+
     addCss("jx-d-css", DCSS);
+
     var last = document.activeElement;
-    var ov = document.createElement("div"); ov.className = "jx-ov"; ov.dir = T("dir");
-    ov.innerHTML = '<div class="jx-dlg" role="dialog" aria-modal="true" aria-labelledby="jx-dt">' +
+    var ov = document.createElement("div");
+
+    ov.className = "jx-ov";
+    ov.dir = T("dir");
+
+    ov.innerHTML =
+      '<div class="jx-dlg" role="dialog" aria-modal="true" aria-labelledby="jx-dt">' +
       '<button type="button" class="x" aria-label="' + T("dClose") + '">' + I_X + '</button>' +
       '<div class="body"><h2 id="jx-dt">' + T("dTitle") + '</h2><p class="d">' + T("dDesc") + '</p>' +
       '<form onsubmit="return false" autocomplete="off">' +
@@ -378,93 +725,280 @@
       '<div class="m"></div>' +
       '<div class="ft"><button type="submit" class="btn pri go">' + T("dGo") + '</button><button type="button" class="btn out cancel">' + T("dCancel") + '</button></div></form></div>' +
       '<div class="ok"><i>' + I_OK + '</i><b>' + T("dOkT") + '</b><small></small><div class="ft" style="justify-content:center;margin-top:18px"><button type="button" class="btn pri done">' + T("dLogin") + '</button></div></div></div>';
+
     document.body.appendChild(ov);
-    requestAnimationFrame(function () { ov.classList.add("on"); });
-    var dlg = ov.querySelector(".jx-dlg"), form = ov.querySelector("form"), go = ov.querySelector(".go"), m = ov.querySelector(".m"),
-        body = ov.querySelector(".body"), okv = ov.querySelector(".ok");
-    function say(t) { m.className = t ? "m bad" : "m"; m.textContent = t || ""; }
-    function close() {
-      ov.classList.remove("on"); document.removeEventListener("keydown", onKey, true);
-      setTimeout(function () { ov.remove(); if (last && last.focus) try { last.focus(); } catch (e) {} }, 160);
+
+    requestAnimationFrame(function () {
+      ov.classList.add("on");
+    });
+
+    var dlg = ov.querySelector(".jx-dlg"),
+      form = ov.querySelector("form"),
+      go = ov.querySelector(".go"),
+      m = ov.querySelector(".m"),
+      body = ov.querySelector(".body"),
+      okv = ov.querySelector(".ok");
+
+    function say(t) {
+      m.className = t ? "m bad" : "m";
+      m.textContent = t || "";
     }
+
+    function close() {
+      ov.classList.remove("on");
+      document.removeEventListener("keydown", onKey, true);
+
+      setTimeout(function () {
+        ov.remove();
+
+        if (last && last.focus) {
+          try { last.focus(); } catch (e) {}
+        }
+      }, 160);
+    }
+
     function onKey(e) {
-      if (e.key === "Escape") { e.stopPropagation(); close(); }
-      if (e.key === "Tab") {                                   /* keep focus inside the dialog */
-        var f = [].filter.call(dlg.querySelectorAll("button, input"), function (x) { return x.offsetParent !== null && x.tabIndex !== -1; });
-        if (!f.length) return; var a = f[0], z = f[f.length - 1];
-        if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus(); }
-        else if (!e.shiftKey && document.activeElement === z) { e.preventDefault(); a.focus(); }
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        close();
+      }
+
+      if (e.key === "Tab") {
+        var f = [].filter.call(
+          dlg.querySelectorAll("button, input"),
+          function (x) {
+            return x.offsetParent !== null && x.tabIndex !== -1;
+          }
+        );
+
+        if (!f.length) return;
+
+        var a = f[0],
+          z = f[f.length - 1];
+
+        if (e.shiftKey && document.activeElement === a) {
+          e.preventDefault();
+          z.focus();
+        } else if (!e.shiftKey && document.activeElement === z) {
+          e.preventDefault();
+          a.focus();
+        }
       }
     }
+
     document.addEventListener("keydown", onKey, true);
-    ov.addEventListener("mousedown", function (e) { if (e.target === ov) close(); });
-    ov.querySelector(".x").onclick = close; ov.querySelector(".cancel").onclick = close;
-    [].forEach.call(ov.querySelectorAll(".eye"), function (b) { b.onclick = function () { var i = b.previousElementSibling; i.type = i.type === "password" ? "text" : "password"; }; });
+
+    ov.addEventListener("mousedown", function (e) {
+      if (e.target === ov) close();
+    });
+
+    ov.querySelector(".x").onclick = close;
+    ov.querySelector(".cancel").onclick = close;
+
+    [].forEach.call(
+      ov.querySelectorAll(".eye"),
+      function (b) {
+        b.onclick = function () {
+          var i = b.previousElementSibling;
+          i.type = i.type === "password" ? "text" : "password";
+        };
+      }
+    );
+
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-      var k = form.k.value.trim().toUpperCase(), u = form.u.value.trim(), p = form.p.value, r = form.r.value;
+
+      var k = form.k.value.trim().toUpperCase(),
+        u = form.u.value.trim(),
+        p = form.p.value,
+        r = form.r.value;
+
       if (!k) return say(T("dNeedKey"));
       if (!/^[A-Za-z0-9_.-]{3,32}$/.test(u)) return say(T("dBadU"));
       if (!p) return say(T("pNeedNew"));
       if (new Blob([p]).size > 72) return say(T("pLong"));
       if (p !== r) return say(T("pMis"));
-      say(""); go.disabled = true; go.innerHTML = '<span class="spin"></span>' + T("pSaving");
-      fetch("/jinx/reset", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "same-origin", body: JSON.stringify({ key: k, username: u, password: p }) })
-        .then(function (res) { return res.json().catch(function () { return {}; }).then(function (j) { return [res.status, j]; }); })
+
+      say("");
+      go.disabled = true;
+      go.innerHTML = '<span class="spin"></span>' + T("pSaving");
+
+      fetch("/jinx/reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({
+          key: k,
+          username: u,
+          password: p
+        })
+      })
+        .then(function (res) {
+          return res.json().catch(function () { return {}; }).then(function (j) {
+            return [res.status, j];
+          });
+        })
         .then(function (x) {
-          go.disabled = false; go.textContent = T("dGo");
-          if (x[0] !== 200) return say(srvMsg("rs", x[0], x[1]));
-          body.style.display = "none"; okv.classList.add("on");
-          okv.querySelector("small").textContent = T("dOkS").replace("{u}", u);
-          var done = okv.querySelector(".done"); done.focus();
+          go.disabled = false;
+          go.textContent = T("dGo");
+
+          if (x[0] !== 200) {
+            return say(srvMsg("rs", x[0], x[1]));
+          }
+
+          body.style.display = "none";
+          okv.classList.add("on");
+
+          okv.querySelector("small").textContent =
+            T("dOkS").replace("{u}", u);
+
+          var done = okv.querySelector(".done");
+          done.focus();
+
           done.onclick = function () {
-            var lf = loginForm(); close();
+            var lf = loginForm();
+            close();
+
             if (lf) {
-              var uIn = lf.querySelector('input:not([type="password"]):not([type="hidden"])'), pIn = lf.querySelector('input[type="password"]');
-              setNative(uIn, u); setNative(pIn, "");
-              setTimeout(function () { if (pIn) pIn.focus(); }, 200);
+              var uIn = lf.querySelector(
+                'input:not([type="password"]):not([type="hidden"])'
+              );
+
+              var pIn = lf.querySelector(
+                'input[type="password"]'
+              );
+
+              setNative(uIn, u);
+              setNative(pIn, "");
+
+              setTimeout(function () {
+                if (pIn) pIn.focus();
+              }, 200);
             }
           };
         })
-        .catch(function () { go.disabled = false; go.textContent = T("dGo"); say(T("net")); });
+        .catch(function () {
+          go.disabled = false;
+          go.textContent = T("dGo");
+          say(T("net"));
+        });
     });
-    setTimeout(function () { form.k.focus(); }, 60);
-  }
-  /* hijack the panel's own "Owner access" button (earliest capture phase, before the panel's handler) */
-  window.addEventListener("click", function (e) {
-    var t = e.target && e.target.closest ? e.target.closest('button, a, [role="button"]') : null;
-    if (!t || t.closest(".jx-dlg") || !loginForm()) return;
-    var n = norm(t.textContent);
-    if (t.classList.contains("jx-owner-fb") || OWNER_TXT.some(function (w) { return n === w || n.indexOf(w) > -1; })) {
-      e.preventDefault(); e.stopImmediatePropagation(); openOwnerDialog();
-    }
-  }, true);
-  var seenLogin = 0;
-  function mountReset() {
-    var f = loginForm(); if (!f) { seenLogin = 0; return; }
-    if (!seenLogin) seenLogin = Date.now();
-    if (ownerButton() || document.querySelector(".jx-owner-fb")) return;
-    if (Date.now() - seenLogin < 1500) { setTimeout(schedule, 1600); return; }   /* give the panel time to draw its own button */
-    addCss("jx-d-css", DCSS);
-    var b = document.createElement("button"); b.type = "button"; b.className = "jx-owner-fb"; b.textContent = T("dTitle");
-    f.appendChild(b);                                               /* only if this panel version has no Owner access button */
+
+    setTimeout(function () {
+      form.k.focus();
+    }, 60);
   }
 
-  /* ---------- run + keep up with page changes ---------- */
+  window.addEventListener("click", function (e) {
+    var t = e.target && e.target.closest
+      ? e.target.closest('button, a, [role="button"]')
+      : null;
+
+    if (!t || t.closest(".jx-dlg") || !loginForm()) return;
+
+    var n = norm(t.textContent);
+
+    if (
+      t.classList.contains("jx-owner-fb") ||
+      OWNER_TXT.some(function (w) {
+        return n === w || n.indexOf(w) > -1;
+      })
+    ) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      openOwnerDialog();
+    }
+  }, true);
+
+  var seenLogin = 0;
+
+  function mountReset() {
+    var f = loginForm();
+
+    if (!f) {
+      seenLogin = 0;
+      return;
+    }
+
+    if (!seenLogin) seenLogin = Date.now();
+
+    if (ownerButton() || document.querySelector(".jx-owner-fb")) return;
+
+    if (Date.now() - seenLogin < 1500) {
+      setTimeout(schedule, 1600);
+      return;
+    }
+
+    addCss("jx-d-css", DCSS);
+
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "jx-owner-fb";
+    b.textContent = T("dTitle");
+
+    f.appendChild(b);
+  }
+
   var queued = false;
   var LANG = null;
-  function relang() {        /* panel language switched: rebuild our cards in the new language */
-    var l = lang(); if (l === LANG) return; LANG = l;
-    ["jx-owner-key", "jx-pass"].forEach(function (id) { var e = document.getElementById(id); if (e && e.dataset.lang !== l) e.remove(); });
-    var fb = document.querySelector(".jx-owner-fb"); if (fb) fb.textContent = T("dTitle");
+
+  function relang() {
+    var l = lang();
+
+    if (l === LANG) return;
+
+    LANG = l;
+
+    ["jx-owner-key", "jx-pass"].forEach(function (id) {
+      var e = document.getElementById(id);
+
+      if (e && e.dataset.lang !== l) {
+        e.remove();
+      }
+    });
+
+    var fb = document.querySelector(".jx-owner-fb");
+
+    if (fb) fb.textContent = T("dTitle");
   }
-  function tick() { try { relang(); } catch (e) {} try { sweep(); mount(); } catch (e) { /* never break the panel */ } try { mountPass(); } catch (e) {} try { mountReset(); } catch (e) {} }
-  function schedule() { if (queued) return; queued = true; requestAnimationFrame(function () { queued = false; tick(); }); }
+
+  function tick() {
+    try { relang(); } catch (e) {}
+    try { sweep(); mount(); } catch (e) {}
+    try { mountPass(); } catch (e) {}
+    try { mountReset(); } catch (e) {}
+  }
+
+  function schedule() {
+    if (queued) return;
+
+    queued = true;
+
+    requestAnimationFrame(function () {
+      queued = false;
+      tick();
+    });
+  }
+
   function start() {
     tick();
-    new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true });
-    new MutationObserver(schedule).observe(document.documentElement, { attributes: true, attributeFilter: ["lang", "dir", "class"] });
+
+    new MutationObserver(schedule).observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+
+    new MutationObserver(schedule).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["lang", "dir", "class"]
+    });
+
     window.addEventListener("storage", schedule);
   }
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", start);
+  } else {
+    start();
+  }
 })();
