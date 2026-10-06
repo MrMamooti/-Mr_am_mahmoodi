@@ -13,7 +13,7 @@ COPY --from=node /usr/local/share/xray /usr/local/share/xray
 
 COPY nginx.conf.template /etc/nginx/nginx.conf.template
 COPY ws.inc /etc/nginx/ws.inc
-COPY jinx-ui.js /etc/nginx/jinx-ui.js
+COPY mamooti-addon.js /etc/nginx/jinx-ui.js
 COPY entrypoint.sh /entrypoint.sh
 COPY bootstrap.py /code/bootstrap.py
 COPY genpaths.py /code/genpaths.py
