@@ -4,12 +4,12 @@
 
 <a href="https://t.me/+WvKFv0lU_i5lNGE0"><img src="https://readme-typing-svg.demolab.com?font=Inter&weight=800&size=22&duration=2600&pause=700&color=6C7BFF&center=true&vCenter=true&width=620&lines=One-click+Reseller+Panel+on+Railway;PasarGuard+%2B+Xray+in+a+single+service;5+configs+%C2%B7+2+groups+%C2%B7+self-healing;Free+forever+%C2%B7+X4G+%C3%97+JinX" alt="Super JinX"></a>
 
-<h1>Super JinX Panel</h1>
+<h1>Mamooti</h1>
 
 <p><b>پنل نمایندگی حرفه‌ای، رایگان و متن‌باز بر پایه‌ی PasarGuard</b><br>
 یک Fork تا یک سرویس کامل: پنل، هسته‌ی Xray و 5 کانفیگ آماده، همه روی Railway</p>
 
-<a href="https://t.me/+WvKFv0lU_i5lNGE0"><img src="https://img.shields.io/badge/Telegram-Super%20JinX-26A5E4?style=for-the-badge&logo=telegram&logoColor=white" alt="Telegram"></a>
+<a href="https://t.me/ParsPing_ir"><img src="https://img.shields.io/badge/Telegram-Super%20JinX-26A5E4?style=for-the-badge&logo=telegram&logoColor=white" alt="Telegram"></a>
 <img src="https://img.shields.io/badge/Version-6.1.3-5b6cff?style=for-the-badge" alt="Version">
 <img src="https://img.shields.io/badge/Price-Free-16a34a?style=for-the-badge" alt="Free">
 <br>
@@ -157,7 +157,7 @@ flowchart LR
 <td valign="top">
 
 ### <img src="ic-sub.svg" width="22" align="center"> &nbsp;صفحه‌ی اشتراک اختصاصی
-- کارت هولوگرامی **JINX PASS** با انیمیشن نرم
+- کارت هولوگرامی **Mamooti** با انیمیشن نرم
 - دو زبانه‌ی فارسی و انگلیسی، همه‌ی عددها انگلیسی
 - پینگ زنده‌ی سرور، **QR داخلی** و اتصال سریع
 - اتصال با یک لمس به 6 اپ محبوب
@@ -333,7 +333,7 @@ flowchart LR
 
 1. برو **کاربران ← ساخت کاربر**.
 2. یک **نام کاربری** بنویس.
-3. از بخش قالب، یکی رو انتخاب کن. مثلاً `30GB - 30 روز` (گروه 𝗝𝗶𝗻𝗫، 4 کانفیگ) یا `Pro 30GB - 30 روز` (گروه جینکس پرو، 1 کانفیگ).
+3. از بخش قالب، یکی رو انتخاب کن. مثلاً `30GB - 30 روز` (گروه Mamooti، 4 کانفیگ) یا `Pro 30GB - 30 روز` (گروه جینکس پرو، 1 کانفیگ).
 4. ذخیره کن. حجم، تاریخ انقضا و کانفیگ‌ها خودکار تنظیم میشن.
 5. روی کاربر بزن و **لینک اشتراک** رو کپی کن و برای مشتری بفرست.
 
@@ -417,7 +417,7 @@ flowchart LR
 | گروه | کانفیگ | پروتکل | انتقال | اثرانگشت TLS | ویژگی |
 |---|---|---|---|---|---|
 | **جینکس پرو** | 𝗣𝗿𝗼 | VLESS | WebSocket + Early Data | Chrome | تک‌کانفیگ با کمترین پینگ |
-| **𝗝𝗶𝗻𝗫** | ⚡ 𝗙𝗹𝗮𝘀𝗵 | VLESS | WebSocket | Firefox | سریع و سبک |
+| **Mamooti** | ⚡ 𝗙𝗹𝗮𝘀𝗵 | VLESS | WebSocket | Firefox | سریع و سبک |
 | | 🔥 𝗙𝗶𝗿𝗲 | Trojan | WebSocket | Safari | مناسب iOS |
 | | 💎 𝗗𝗶𝗮𝗺𝗼𝗻𝗱 | VMess | WebSocket | Edge | سازگاری با اپ‌های قدیمی |
 | | 🌙 𝗡𝗶𝗴𝗵𝘁 | VLESS | HTTPUpgrade | iOS | پایدار در شبکه‌های سخت |
@@ -425,17 +425,17 @@ flowchart LR
 اسم کانفیگ‌ها توی اپ کاربر با فونت مخصوص دیده میشه:
 
 ```text
-𝗣𝗿𝗼 | جینکس | 𝙎𝙪𝙥𝙚𝙧 𝗝𝗶𝗻𝗫
-⚡ 𝗙𝗹𝗮𝘀𝗵 | جینکس | 𝙎𝙪𝙥𝙚𝙧 𝗝𝗶𝗻𝗫
-🔥 𝗙𝗶𝗿𝗲 | جینکس | 𝙎𝙪𝙥𝙚𝙧 𝗝𝗶𝗻𝗫
-💎 𝗗𝗶𝗮𝗺𝗼𝗻𝗱 | جینکس | 𝙎𝙪𝙥𝙚𝙧 𝗝𝗶𝗻𝗫
-🌙 𝗡𝗶𝗴𝗵𝘁 | جینکس | 𝙎𝙪𝙥𝙚𝙧 𝗝𝗶𝗻𝗫
+𝗣𝗿𝗼 |𝙎𝙪𝙥𝙚𝙧
+⚡ 𝗙𝗹𝗮𝘀𝗵 |𝙎𝙪𝙥𝙚𝙧
+🔥 𝗙𝗶𝗿𝗲 |𝙎𝙪𝙥𝙚𝙧
+💎 𝗗𝗶𝗮𝗺𝗼𝗻𝗱 |𝙎𝙪𝙥𝙚𝙧
+🌙 𝗡𝗶𝗴𝗵𝘁 | 𝙎𝙪𝙥𝙚𝙧
 ```
 
 متن بعد از اسم رو با متغیر `CONFIG_TITLE` هر چی بخوای عوض کن.
 
 > [!TIP]
-> اگه موقع ساخت کاربر گروهی انتخاب نکنی، پنل خودکار اون رو به گروه **𝗝𝗶𝗻𝗫** وصل می‌کنه.
+> اگه موقع ساخت کاربر گروهی انتخاب نکنی، پنل خودکار اون رو به گروه **Mamooti** وصل می‌کنه.
 
 **لینک اشتراک**
 
@@ -463,8 +463,8 @@ https://YOUR-DOMAIN/sub/<token>
 
 | گروه | قالب‌های فروش آماده |
 |---|---|
-| **𝗝𝗶𝗻𝗫** | 10، 30، 50 و 100 گیگ (30 روزه) · 200 گیگ (60 روزه) · نامحدود (30 روزه) |
-| **جینکس پرو** | Pro 30، 50 و 100 گیگ · Pro نامحدود (همه 30 روزه) |
+| **Mamooti** | 10، 30، 50 و 100 گیگ (30 روزه) · 200 گیگ (60 روزه) · نامحدود (30 روزه) |
+| **مموتی** | Pro 30، 50 و 100 گیگ · Pro نامحدود (همه 30 روزه) |
 
 **منوی پنل**: داشبورد · کاربران · کلیدهای API · قالب‌ها · عملیات گروهی · تنظیمات · پشتیبانی
 
@@ -475,7 +475,7 @@ https://YOUR-DOMAIN/sub/<token>
 <a id="sub"></a>
 ## <img src="ic-sub.svg" width="30" align="center"> &nbsp;صفحه‌ی اشتراک
 
-- کارت هولوگرامی **JINX PASS** با نام کاربر، وضعیت، تاریخ انقضا و زمان باقی‌مانده
+- کارت هولوگرامی **MAMOOTI** با نام کاربر، وضعیت، تاریخ انقضا و زمان باقی‌مانده
 - **دو زبانه**: فارسی و انگلیسی با یک لمس، راست‌چین و چپ‌چین خودکار، همه‌ی عددها به شکل 123
 - تاریخ انقضا به **تقویم شمسی** و هشدار نزدیک شدن به پایان حجم یا زمان
 - حلقه‌ی مصرف با حجم مصرف‌شده، باقی‌مانده و کل حجم
